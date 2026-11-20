@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 階梯</title>
+<meta name="description" content="寫給完全沒碰過 AI 的台灣人：文字課加 3 分鐘影片，第一階免費，每個說法都附來源。">
+<meta property="og:title" content="AI 階梯：從零開始的 AI 課">
+<meta property="og:description" content="寫給完全沒碰過 AI 的台灣人：文字課加 3 分鐘影片，第一階免費，每個說法都附來源。">
+<meta property="og:image" content="img/aji-wave.jpg">
+<link rel="icon" href="img/aji-wave.jpg">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a staircase that 阿記 climbs. White page to match the watercolor illustrations (single light theme on purpose: the art has white grounds).
+   Palette taken from 阿記: notebook orange, limb navy, page cream. */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --cream:#FFF7EA; --ink:#1F3263; --muted:#5D6886; --line:#E6E3DC;
+  --accent:#F08A24; --accent-ink:#1F3263; --accent-text:#C4600A;
+  --l1:#23998C; --l2:#3A6BD4; --l3:#7B5BD3; --l4:#D97F0E;
+  --l1-soft:#E6F5F2; --l2-soft:#EAF0FC; --l3-soft:#F0ECFB; --l4-soft:#FDF1DF;
+  --shade:rgba(31,50,99,.4);
+  color-scheme:light;
+  --f-display:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+a{color:inherit}
+h1,h2,h3{font-family:var(--f-display);line-height:1.25;text-wrap:balance;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:900;font-size:20px;display:flex;align-items:center;gap:8px;text-decoration:none}
+.brand-mark{display:inline-grid;grid-template-columns:repeat(4,5px);align-items:end;gap:2px;height:18px}
+.brand-mark i{display:block;width:5px;border-radius:1px}
+.brand-mark i:nth-child(1){height:5px;background:var(--l1)}
+.brand-mark i:nth-child(2){height:9px;background:var(--l2)}
+.brand-mark i:nth-child(3){height:13px;background:var(--l3)}
+.brand-mark i:nth-child(4){height:18px;background:var(--l4)}
+nav.links{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav.links a{text-decoration:none;font-size:14px;color:var(--muted);padding:6px 10px;border-radius:6px}
+nav.links a:hover{color:var(--ink);background:var(--bg)}
+.member-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px;background:var(--bg)}
+.member-toggle input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+
+/* hero */
+.hero{padding-block:56px 40px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:end}
+.eyebrow{color:var(--accent-text);margin-bottom:12px}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--accent-text);background:linear-gradient(transparent 62%,var(--l4-soft) 62%)}
+.hero p.lede{color:var(--muted);font-size:18px;max-width:34em;margin:16px 0 24px}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:10px 18px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid transparent}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{border-color:var(--line);background:var(--surface);color:var(--ink)}
+
+.stairs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:end}
+.stair-col{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;min-width:0}
+.aji-hero{position:relative;display:flex;justify-content:center;margin-bottom:-6px}
+.aji-hero img{width:min(130px,100%);height:auto;display:block}
+.bubble{position:absolute;left:62%;top:-4px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap;z-index:1}
+.bubble::after{content:"";position:absolute;left:10px;bottom:-8px;border:6px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.step{border-radius:12px 12px 4px 4px;padding:14px 12px;color:var(--ink);text-decoration:none;display:flex;flex-direction:column;justify-content:flex-start;gap:4px;transition:transform .2s ease;border:2px solid var(--lv);border-bottom-width:6px}
+.step:hover{transform:translateY(-4px)}
+.step .n{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:var(--lv);font-weight:500}
+.step b{font-family:var(--f-display);font-size:20px;font-weight:900;line-height:1.2}
+.step span{font-size:13px;color:var(--muted);line-height:1.5}
+.step.s1{height:120px;background:var(--l1-soft);--lv:var(--l1)} .step.s2{height:180px;background:var(--l2-soft);--lv:var(--l2)}
+.step.s3{height:240px;background:var(--l3-soft);--lv:var(--l3)} .step.s4{height:300px;background:var(--l4-soft);--lv:var(--l4)}
+.band-cream{background:var(--cream)}
+
+/* where to start */
+.finder{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:12px;margin-top:8px}
+.finder h2{font-size:18px}
+.finder-opts{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.finder-out{font-size:15px;color:var(--muted);min-height:1.75em}
+.finder-out b{color:var(--ink)}
+
+/* levels */
+section.level{padding-block:48px;border-top:1px solid var(--line)}
+.level-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px 20px;align-items:start;margin-bottom:24px}
+.badge{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:24px;color:var(--lv);background:var(--lv-soft);border:2px solid var(--lv)}
+.level-head h2{font-size:28px;font-weight:900}
+.level-head p{margin:6px 0 0;color:var(--muted);max-width:40em}
+.outcome{grid-column:2;font-size:14px;color:var(--muted)}
+.outcome b{color:var(--ink)}
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lesson{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;color:var(--ink);min-width:0;overflow:hidden}
+.lesson .cover{margin:0 -16px 4px;aspect-ratio:3/2;background:var(--cream);border-bottom:1px solid var(--line)}
+.lesson .cover img{width:100%;height:100%;object-fit:cover;display:block}
+.lesson .cover.none{display:grid;place-items:center;color:var(--muted);font-size:13px}
+.lesson:hover:not([disabled]){border-color:var(--lv)}
+.lesson[disabled]{cursor:default;opacity:.62}
+.lesson .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{font-size:12px;border-radius:4px;padding:1px 7px;font-weight:500;white-space:nowrap}
+.tag.free{background:var(--lv-soft);color:var(--lv)}
+.tag.member{background:var(--accent);color:var(--accent-ink)}
+.tag.soon{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.tag.video{background:var(--bg);color:var(--muted)}
+.lesson h3{font-size:17px;font-weight:700}
+.lesson p{margin:0;font-size:14px;color:var(--muted);line-height:1.6}
+.lesson .mins{margin-top:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.lv1{--lv:var(--l1);--lv-soft:var(--l1-soft)} .lv2{--lv:var(--l2);--lv-soft:var(--l2-soft)}
+.lv3{--lv:var(--l3);--lv-soft:var(--l3-soft)} .lv4{--lv:var(--l4);--lv-soft:var(--l4-soft)}
+
+/* 阿記 tips, book band */
+.aji-tip{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:16px 0}
+.aji-tip img{width:72px;height:auto;display:block;mix-blend-mode:multiply}
+.aji-tip b{color:var(--accent-text)}
+.faq{display:grid;gap:8px;max-width:760px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.faq summary{font-weight:700;cursor:pointer}
+.faq p{margin:8px 0 0;color:var(--muted);font-size:15px}
+.book{display:grid;grid-template-columns:180px minmax(0,1fr);gap:28px;align-items:center}
+.book img{width:100%;height:auto;border-radius:6px;box-shadow:0 8px 24px rgba(31,50,99,.16);display:block}
+.book h2{font-size:26px;font-weight:900;margin:4px 0 8px}
+.book p{color:var(--muted);margin:0 0 6px;max-width:36em}
+.book ul{margin:8px 0 16px;padding-left:18px;color:var(--muted);font-size:15px}
+.finder{position:relative;padding-right:132px}
+.finder .aji-side{position:absolute;right:20px;bottom:12px;width:92px;height:auto;mix-blend-mode:multiply}
+
+/* how it updates */
+.pipeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:20px}
+.pipe{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.pipe .mono{color:var(--muted)}
+.pipe b{display:block;font-size:15px;margin:4px 0}
+.pipe p{margin:0;font-size:13px;color:var(--muted);line-height:1.6}
+.pipe.human{border-color:var(--accent)}
+.pipe.human .mono{color:var(--accent-text)}
+
+/* pricing */
+.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.plan.featured{border:2px solid var(--accent)}
+.plan h3{font-size:18px}
+.price{font-family:var(--f-display);font-size:32px;font-weight:900;font-variant-numeric:tabular-nums}
+.price small{font-size:14px;font-weight:400;color:var(--muted)}
+.price .cur{font-size:16px;font-weight:700;margin-right:2px}
+.plan .per{font-size:13px;color:var(--muted);margin-top:-6px}
+.plan ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted);display:grid;gap:4px}
+.plan .btn{justify-content:center;margin-top:auto}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:8px;font-size:14px;z-index:30;max-width:calc(100% - 32px)}
+
+footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:13px}
+
+/* reader */
+.reader-shade{position:fixed;inset:0;background:var(--shade);z-index:20}
+.reader{position:fixed;top:0;right:0;bottom:0;width:min(720px,100%);background:var(--surface);z-index:21;overflow-y:auto;border-left:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.reader-bar{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 20px}
+.reader-bar .mono{color:var(--lv)}
+.close{margin-left:auto;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;padding:4px 12px;font-size:14px}
+.reader-body{padding:24px 24px 64px}
+.reader-body h1{font-size:28px;font-weight:900;margin-bottom:6px}
+.reader-body .r-cover{width:100%;height:auto;display:block;border-radius:10px;margin-bottom:16px}
+.reader-body .sub{color:var(--muted);margin:0 0 20px;font-size:15px}
+.reader-body h2{font-size:20px;margin:28px 0 8px;font-weight:700}
+.reader-body p,.reader-body li{max-width:40em}
+.reader-body ul,.reader-body ol{padding-left:20px}
+.reader-body li{margin-bottom:6px}
+.reader-body .box{background:var(--lv-soft);border-radius:8px;padding:12px 16px;margin:16px 0}
+.reader-body .box b{color:var(--lv)}
+.reader-body pre{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;white-space:pre-wrap;font-family:var(--f-body);font-size:14px;line-height:1.7;margin:12px 0}
+.table-scroll{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:8px}
+.reader-body table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px;line-height:1.55}
+.reader-body th,.reader-body td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.reader-body th{background:var(--bg);font-weight:700;white-space:nowrap}
+.reader-body tr:last-child td{border-bottom:0}
+.video-slot{display:flex;gap:12px;align-items:center;border:1px dashed var(--line);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-bottom:8px}
+.video-slot .play{width:36px;height:36px;border-radius:50%;background:var(--lv);flex:none;display:grid;place-items:center}
+.video-slot .play::after{content:"";border-left:11px solid var(--surface);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.paywall{position:relative;margin-top:-80px;padding-top:80px;background:linear-gradient(to bottom,transparent,var(--surface) 70px);text-align:center}
+.paywall .inner{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--surface)}
+.paywall h3{font-size:18px;margin-bottom:6px}
+.paywall p{margin:0 auto 14px;color:var(--muted);font-size:14px}
+.sources{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:32px;padding-top:12px}
+
+@media (max-width:860px){
+  .hero-grid{grid-template-columns:1fr}
+  .stairs{min-height:240px}
+  .step.s1{height:96px}.step.s2{height:144px}.step.s3{height:192px}.step.s4{height:240px}
+  .book{grid-template-columns:120px minmax(0,1fr);gap:20px}
+  .pipeline{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .plans{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .step b{font-size:16px} .step span{display:none}
+  .bubble{left:50%;font-size:12px}
+  .finder{padding-right:20px} .finder .aji-side{display:none}
+  .book{grid-template-columns:1fr} .book img{width:150px}
+  .aji-tip{grid-template-columns:52px minmax(0,1fr)} .aji-tip img{width:52px}
+  .level-head{grid-template-columns:1fr} .outcome{grid-column:1}
+  .badge{width:44px;height:44px;font-size:19px}
+  nav.links{display:none}
+  .reader-body{padding:20px 16px 56px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>AI 階梯</a>
+    <nav class="links" aria-label="主選單">
+      <a href="#level-1">新手</a><a href="#level-2">中階</a><a href="#level-3">進階</a><a href="#level-4">商家</a><a href="#pricing">訂閱</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow mono">從零開始的 AI 課 · 每週更新</div>
+        <h1>從「AI 是什麼」<br>到<em>「用 AI 賺錢」</em><br>一階一階往上走</h1>
+        <p class="lede">不懂技術也看得懂。四個階段，每一課都有文字版和 3 分鐘影片版。先學會用，再學會用得好，最後讓它幫你的生意省錢、賺錢。</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#what-is-ai">免費開始第一課</a>
+          <a class="btn btn-ghost" href="#pricing">看會員方案</a>
+        </div>
+      </div>
+      <div class="stairs" aria-label="四個學習階段">
+        <div class="stair-col">
+          <div class="aji-hero"><span class="bubble">我陪你爬！</span><img src="img/aji-wave.jpg" alt="吉祥物阿記在揮手" width="362" height="420"></div>
+          <a class="step s1" href="#level-1"><span class="n">第 1 階</span><b>新手入門</b><span>聽得懂、會用</span></a>
+        </div>
+        <div class="stair-col"><a class="step s2" href="#level-2"><span class="n">第 2 階</span><b>中階應用</b><span>選對工具、問對問題</span></a></div>
+        <div class="stair-col"><a class="step s3" href="#level-3"><span class="n">第 3 階</span><b>進階玩家</b><span>讓 AI 自動做事</span></a></div>
+        <div class="stair-col"><a class="step s4" href="#level-4"><span class="n">第 4 階</span><b>商家實戰</b><span>省成本、增營收</span></a></div>
+      </div>
+    </div>
+
+    <div class="finder" aria-labelledby="finder-h">
+      <h2 id="finder-h">不知道從哪一階開始？選一句最像你的話：</h2>
+      <div class="finder-opts" id="finder-opts">
+        <button class="chip" type="button" data-to="1" aria-pressed="false">我還沒用過 AI</button>
+        <button class="chip" type="button" data-to="2" aria-pressed="false">用過 ChatGPT，但答案常常不好用</button>
+        <button class="chip" type="button" data-to="3" aria-pressed="false">每天都在用，想讓它自動化</button>
+        <button class="chip" type="button" data-to="4" aria-pressed="false">我是老闆／開店，想降低成本</button>
+      </div>
+      <div class="finder-out" id="finder-out" aria-live="polite">選一個，阿記告訴你從哪一課開始。</div>
+      <img class="aji-side" src="img/aji-idea.jpg" alt="" width="375" height="420">
+    </div>
+  </div>
+
+  <div id="levels"></div>
+
+  <section class="level band-cream" id="book" aria-labelledby="book-h">
+    <div class="wrap book">
+      <img src="img/book-cover.jpg" alt="《一個人＋AI：從想法到上架的實戰手冊》封面" width="480" height="680">
+      <div>
+        <div class="mono" style="color:var(--accent-text)">阿記的書</div>
+        <h2 id="book-h">一個人＋AI：從想法到上架的實戰手冊</h2>
+        <p>學完第 3 階，想自己做一個 App？這本書跟著一個記帳 App，從第一次跟 AI 對話，一路做到上架、收費、行銷。</p>
+        <ul><li>10 章、109 頁、52 張阿記插畫</li><li>附「照抄就能用」模板包</li><li>先看免費試讀，第 2 章整章都在裡面</li></ul>
+        <div class="cta-row"><button class="btn btn-primary" type="button" data-pay="ebook">NT$399 購買電子書</button><button class="btn btn-ghost" type="button" data-pay="sample">免費試讀</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="level" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="mono" style="color:var(--muted)">內容怎麼來的</div>
+      <h2 id="how-h" style="font-size:28px;font-weight:900;margin-top:4px">AI 幫忙整理，人負責查證</h2>
+      <p style="color:var(--muted);max-width:40em;margin:8px 0 0">AI 圈變化很快，所以每一課都附上來源，定期重新查核，頁面上寫明最後查核的日期。</p>
+      <div class="pipeline">
+        <div class="pipe"><div class="mono">第 1 步</div><b>查資料</b><p>AI 協助找官方文件、研究和可信的報導</p></div>
+        <div class="pipe"><div class="mono">第 2 步</div><b>寫初稿</b><p>AI 協助整理成課文和影片腳本</p></div>
+        <div class="pipe human"><div class="mono">人工</div><b>逐句查證</b><p>每個說法對照來源，講錯的改掉</p></div>
+        <div class="pipe human"><div class="mono">人工</div><b>改成白話</b><p>沒用過 AI 的人也要一聽就懂</p></div>
+        <div class="pipe"><div class="mono">發布後</div><b>定期重查</b><p>有變化就更新，並寫上查核日期</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="level band-cream" id="pricing" aria-labelledby="price-h">
+    <div class="wrap">
+      <div class="mono" style="color:var(--muted)">訂閱</div>
+      <h2 id="price-h" style="font-size:28px;font-weight:900;margin-top:4px">第一階永遠免費</h2>
+      <div class="plans">
+        <div class="plan">
+          <h3>免費</h3>
+          <div class="price"><span class="cur">NT$</span>0</div>
+          <ul><li>第 1 階全部課程</li><li>第 2 階第一課</li><li>每一課的導讀</li><li>YouTube 上的所有影片</li></ul>
+          <a class="btn btn-ghost" href="#what-is-ai">開始學習</a>
+        </div>
+        <div class="plan featured">
+          <h3>會員 · 月繳</h3>
+          <div class="price"><span class="cur">NT$</span>149<small> / 月</small></div>
+          <ul><li>四個階段全部課文（陸續上架）</li><li>新課上架馬上能看</li><li>隨時可以取消</li></ul>
+          <button class="btn btn-primary" type="button" data-pay="join">成為會員</button>
+        </div>
+      </div>
+      <div class="aji-tip" style="margin-top:16px"><img src="img/aji-thumbs.jpg" alt="" width="372" height="420"><div id="join-note">會員的訂閱和付款，透過方格子沙龍處理，支援信用卡、ATM、超商和 LINE Pay。</div></div>
+
+      <h3 style="font-size:20px;margin:32px 0 12px">常見問題</h3>
+      <div class="faq">
+        <details><summary>怎麼取消訂閱？</summary><p>在方格子的帳號裡隨時可以自己取消。取消後下一期不會再扣款，已經付費的這一期可以看到期滿。</p></details>
+        <details><summary>可以退款嗎？</summary><p>會員是在方格子沙龍訂閱，退款照<a href="https://vocus.cc/terms/salon" target="_blank" rel="noopener">方格子的沙龍條款</a>辦理。訂閱前請先看免費的第 1 階，確定看得懂、適合你再訂。</p></details>
+        <details><summary>我完全不懂電腦，看得懂嗎？</summary><p>第 1 階就是寫給完全沒用過 AI 的人，而且免費。先看「AI 到底是什麼？」，看得懂再往上爬。</p></details>
+        <details><summary>課程內容會過時嗎？</summary><p>每一課都會定期重新查核，頁面上會寫最後查核的日期。會員期間的更新都不用另外付費。</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">AI 階梯 · 內容最後查核：2026 年 11 月 21 日 · AI 產品更新很快，功能與價格請以各家官網為準。</div></footer>
+
+<div class="reader-shade" id="shade" hidden></div>
+<article class="reader" id="reader" hidden aria-modal="true" role="dialog" aria-labelledby="r-title">
+  <div class="reader-bar"><span class="mono" id="r-level"></span><button class="close" type="button" id="r-close">關閉</button></div>
+  <div class="reader-body" id="r-body"></div>
+</article>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// 網址填好後，按鈕就會連過去；留空時會顯示「準備中」。
+const SITE = {
+  join: "",    // 方格子沙龍的訂閱頁網址
+  ebook: "",   // 電子書購買頁網址
+  sample: "",  // 電子書試讀網址
+};
+const SOON_MSG = {
+  join: "會員訂閱準備中，開放後會在這裡公告。",
+  ebook: "電子書販售準備中，開放後會在這裡公告。",
+  sample: "電子書試讀準備中，開放後會在這裡公告。",
+};
+const LEVELS = [
+  {n:1, id:"level-1", name:"新手入門", desc:"從沒用過 AI 也沒關係。這一階講清楚 AI 是什麼、常聽到的名詞是什麼意思，以及怎麼開始第一次對話。", outcome:"能自己打開一個 AI 工具，問出一個有用的問題。"},
+  {n:2, id:"level-2", name:"中階應用", desc:"知道有哪些 AI、各自擅長什麼，學會把問題問清楚，讓答案從「還可以」變成「能直接用」。", outcome:"能依任務選對工具，寫出穩定好用的提示詞。"},
+  {n:3, id:"level-3", name:"進階玩家", desc:"讓 AI 不只回答問題，還能連續完成一串工作：查資料、整理、寫報告、發通知。", outcome:"能架一個每天自動執行的 AI 小流程。"},
+  {n:4, id:"level-4", name:"商家實戰", desc:"寫給老闆、店家和小團隊。哪些地方值得用 AI、怎麼算投資報酬、有哪些法律和口碑風險。", outcome:"能在自己的生意裡落實兩到三個 AI 用法。"}
+];
+
+const LESSONS = [
+  {id:"what-is-ai", lv:1, tier:"free", mins:6, title:"AI 到底是什麼？", sum:"用一個比喻講懂聊天 AI 怎麼運作，以及它為什麼會講錯。", body:`
+<p><b>AI 是一個很大的家族。</b>手機認臉解鎖、影片平台推薦你下一支影片，都是 AI。這一課講的是大家最常用的<b>聊天 AI</b>，像 ChatGPT、Gemini、Claude。</p>
+<p>聊天 AI 最核心的引擎，叫做<b>大型語言模型</b>。白話說，就是一個讀過超多文字、很會接話的程式。</p>
+<h2>它怎麼學會說話：接龍高手</h2>
+<p>想像有一個人，讀了超大量的文字：書、新聞、網路文章、程式碼。他沒有把每一本書都背下來，而是練出一個本事：看到前半句，就猜得出下一個字最可能是什麼。</p>
+<p>你問他「台南有什麼好吃的？」，他就一段一段接下去：牛肉湯、蝦捲、碗粿……接出一整段回答。大型語言模型寫字的方式就是這樣：<b>根據前面的內容，猜下一個字</b>。精確說，它一次猜的是「一小段字」，可能是一個字，也可能是半個詞。</p>
+<p>之後，還會有人教它怎麼回答比較有用、比較安全。它讀得夠多、練得夠久，所以接出來的話很順，很多時候也是對的。</p>
+<div class="box"><b>記住這一句：</b>它寫出來的，是「最像正確答案的文字」，不一定是「查證過的正確答案」。它可能講得非常肯定，內容卻是錯的。這種情況叫做「幻覺」。</div>
+<h2>它擅長什麼</h2>
+<ul><li>寫東西：文案、Email、摘要、翻譯</li><li>解釋東西：把很難懂的內容，講成你聽得懂的話</li><li>出主意：幫你列選項、想名字、找漏洞</li><li>幫你整理：表格、重點、待辦清單，有些還看得懂圖片</li></ul>
+<h2>它不擅長什麼</h2>
+<ul><li><b>最新的消息：</b>它的知識有截止日期，沒有打開搜尋功能的話，不知道最近發生的事</li><li><b>精確的數字和冷門的事實：</b>很容易講錯，重要的一定要自己再查</li><li><b>要負責任的決定：</b>醫療、法律、投資，它的話只能當參考，最後要問專業的人，再自己決定</li></ul>
+<h2>這一課的作業</h2>
+<p>打開任何一個聊天 AI，問它一個你本來就知道答案的問題，看看它答得對不對。這是認識 AI 最快的方法。</p>
+<p class="sources">來源：<a href="https://oecd.ai/en/ai-publications/explanatory-memorandum-on-the-updated-oecd-definition-of-an-ai-system" target="_blank" rel="noopener">OECD 的 AI 系統定義</a>、<a href="https://www.ibm.com/think/topics/large-language-models" target="_blank" rel="noopener">IBM：什麼是大型語言模型</a>、<a href="https://openai.com/index/why-language-models-hallucinate/" target="_blank" rel="noopener">OpenAI：語言模型為什麼會有幻覺</a>、<a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them" target="_blank" rel="noopener">OpenAI：什麼是 token</a>、<a href="https://support.claude.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data" target="_blank" rel="noopener">Anthropic：模型的知識截止日期</a>。最後查核：2026 年 11 月 21 日。</p>`},
+  {id:"glossary", lv:1, tier:"free", mins:8, title:"常聽到的 10 個 AI 名詞", sum:"提示詞、Token、幻覺、AI 代理……每個詞一句話講清楚。", body:`
+<p>看 AI 新聞時最勸退的就是專有名詞。這 10 個詞搞懂了，大部分文章你都看得懂。</p>
+<div class="table-scroll"><table>
+<tr><th>名詞</th><th>一句話解釋</th></tr>
+<tr><td>大型語言模型／LLM</td><td>用大量文字訓練出來、能理解和產生文字的程式。ChatGPT 背後就是它。</td></tr>
+<tr><td>提示詞／Prompt</td><td>你對 AI 說的話、下的指令。問得越清楚，答得越好。</td></tr>
+<tr><td>Token</td><td>模型計算文字的單位，收費和長度上限都按它算。中文大約一個字一個左右，各家算法不同。</td></tr>
+<tr><td>上下文</td><td>AI 在一次對話裡能「記住」的內容總量。超過了，前面的就會被忘掉。</td></tr>
+<tr><td>幻覺</td><td>AI 一本正經地編造不存在的事實，例如假的書名、假的數據。</td></tr>
+<tr><td>多模態</td><td>不只看得懂文字，還能看圖、聽聲音、看影片，甚至產生它們。</td></tr>
+<tr><td>AI 代理／Agent</td><td>能自己拆解任務、使用工具、連續做好幾步的 AI，不只是回一句話。</td></tr>
+<tr><td>開源／閉源</td><td>開源模型可以下載到自己的電腦或伺服器上用；閉源模型只能透過官方產品或介面使用。</td></tr>
+<tr><td>API</td><td>讓程式直接呼叫 AI 的介面。做網站、做自動化時會用到，通常依用量付費。</td></tr>
+<tr><td>知識庫／RAG</td><td>先從你的資料裡找出相關內容，再交給 AI 回答。做客服、內部問答很常用。</td></tr>
+</table></div>
+<p>不用背。看到不懂的詞，回來這頁查就好。</p>`},
+  {id:"first-chat", lv:1, tier:"free", mins:10, title:"10 分鐘完成第一次 AI 對話", sum:"註冊、提問、追問，再用它幫你寫一則真的會傳出去的訊息。", soon:true},
+  {id:"safety", lv:1, tier:"free", mins:5, title:"哪些東西不要貼給 AI", sum:"身分證字號、密碼、客戶資料……保護自己的 5 條底線。", soon:true},
+
+  {id:"models", lv:2, tier:"free", mins:12, title:"主流 AI 模型有什麼差別？", sum:"ChatGPT、Gemini、Claude、Copilot、DeepSeek、TAIDE，各自擅長什麼。", body:`
+<p>市面上的 AI 很多，但在台灣常用的就那幾家。下面依「誰做的、擅長什麼、適合誰」整理。各家每隔幾個月就會推出新版本，所以這裡只講比較穩定的特點，不列版本號。</p>
+<div class="table-scroll"><table>
+<tr><th>產品</th><th>公司</th><th>比較突出的地方</th><th>適合誰</th></tr>
+<tr><td>ChatGPT</td><td>OpenAI（美國）</td><td>使用者最多，功能最齊全：聊天、畫圖、語音、連網搜尋都有</td><td>想要一個什麼都能做的通用助手</td></tr>
+<tr><td>Gemini</td><td>Google（美國）</td><td>和 Gmail、Google 文件、YouTube 整合，多模態能力強</td><td>平常就用 Google 服務的人</td></tr>
+<tr><td>Claude</td><td>Anthropic（美國）</td><td>長文寫作、讀長篇文件、寫程式口碑好，語氣自然</td><td>寫作者、工程師、要處理大量文件的人</td></tr>
+<tr><td>Copilot</td><td>Microsoft（美國）</td><td>內建在 Windows、Word、Excel、Outlook 裡</td><td>公司用 Microsoft 365 的上班族</td></tr>
+<tr><td>DeepSeek</td><td>深度求索（中國）</td><td>推理能力強、開源、API 價格低</td><td>想省成本、想自行架設的開發者</td></tr>
+<tr><td>TAIDE</td><td>國科會（台灣）</td><td>以台灣在地資料訓練，熟悉繁體中文和台灣用語，開源</td><td>重視在地用語的政府單位、學校、企業</td></tr>
+</table></div>
+<h2>怎麼選：看任務，不看排名</h2>
+<ul><li><b>日常問答、寫點小東西：</b>哪一家都夠用，選你最方便打開的</li><li><b>寫長文、改稿：</b>多試幾家，挑你最喜歡的語氣</li><li><b>讀很長的 PDF：</b>選對長文件支援好的，例如 Claude、Gemini</li><li><b>查最新資訊：</b>一定要開連網搜尋，並點開來源查核</li><li><b>答案要用台灣用語：</b>在提示詞裡寫「請用台灣繁體中文和台灣慣用語」</li></ul>
+<div class="box"><b>小技巧：</b>同一個問題丟給兩個 AI，比較答案。兩邊說法不一樣的地方，就是你該自己查證的地方。</div>
+<h2>使用中國 AI 服務要注意</h2>
+<p>台灣政府已限制公務機關使用 DeepSeek 等中國 AI 服務。一般人可以用，但公司機密、客戶個資這類資料，建議不要貼進去。</p>
+<h2>畫圖、做影片的 AI 是另一類</h2>
+<p>上面這些主要處理文字。產生圖片和影片有專門的工具，例如 Midjourney、Canva 的 AI 功能、Runway、可靈等，會在第 2 階後面的課另外介紹。</p>
+<p class="sources">功能和價格常常調整，請以官網為準。本課會定期重新查核。</p>`},
+  {id:"prompting", lv:2, tier:"member", mins:9, title:"讓答案能直接用的 5 個提問習慣", sum:"角色、目標、範例、格式、讓它先反問你。附改寫前後對照。", teaser:`
+<p>同一個 AI，有人覺得很好用，有人覺得很雞肋，差別多半在怎麼問。這 5 個習慣不需要技巧，養成就好。</p>`},
+  {id:"compare-tools", lv:2, tier:"member", mins:10, title:"畫圖、影片、配音 AI 怎麼挑", sum:"Midjourney、Canva、Runway 等工具的用途和價格區間。", soon:true},
+  {id:"fact-check", lv:2, tier:"member", mins:7, title:"怎麼判斷 AI 有沒有在亂講", sum:"三個快速查證的方法，避開幻覺。", soon:true},
+
+  {id:"agents", lv:3, tier:"member", mins:11, title:"什麼是 AI 代理（Agent）？", sum:"從「問一句答一句」到「交代任務、它自己做完」。", teaser:`
+<p>聊天 AI 是你問一句、它答一句。<b>AI 代理（Agent）</b>是你交代一個目標，它自己拆成幾個步驟，一步步用工具做完，最後把結果交給你。</p>`},
+  {id:"workflow", lv:3, tier:"member", mins:15, title:"做一個每天自動執行的 AI 流程", sum:"用 n8n 或 Make，把蒐集、整理、傳送串起來。", soon:true},
+  {id:"own-kb", lv:3, tier:"member", mins:12, title:"用自己的資料做一個 AI 知識庫", sum:"上傳檔案，讓 AI 只根據你的資料回答。", soon:true},
+  {id:"api-basics", lv:3, tier:"member", mins:14, title:"第一次呼叫 AI 的 API", sum:"不會寫程式也看得懂的 API 入門與費用估算。", soon:true},
+
+  {id:"shop-uses", lv:4, tier:"member", mins:12, title:"小店最值得用 AI 的 6 個地方", sum:"客服、商品圖、文案、短影音、數據、員工訓練，各自能省多少。", teaser:`
+<p>不是每件事都值得用 AI。下面 6 個地方，投入小、見效快，適合先做。</p>`},
+  {id:"roi", lv:4, tier:"member", mins:10, title:"AI 投資報酬怎麼算", sum:"附可以直接套用的試算表。", soon:true},
+  {id:"ai-cs", lv:4, tier:"member", mins:16, title:"一週上線 AI 客服", sum:"從整理常見問題到接上 LINE 官方帳號的完整步驟。", soon:true},
+  {id:"compliance", lv:4, tier:"member", mins:9, title:"商家用 AI 的法律與平台規範", sum:"個資法、肖像權、著作權、廣告法規，哪些紅線不能碰。", soon:true}
+];
+
+const COVERS = new Set(["what-is-ai","glossary","safety","first-chat","models","prompting","fact-check","agents","workflow","shop-uses","roi","compliance","compare-tools","own-kb","api-basics","ai-cs"]);
+const $ = s => document.querySelector(s);
+function ajiTips(html){
+  return html.replace(/<div class="box">([\s\S]*?)<\/div>/g, (m, inner) =>
+    `<div class="aji-tip"><img src="img/${inner.includes("小技巧") ? "aji-idea" : "aji-alert"}.jpg" alt="" width="360" height="420"><div>${inner}</div></div>`);
+}
+
+function tagFor(l){
+  if (l.soon) return '<span class="tag soon">即將推出</span>';
+  return l.tier === "free" ? '<span class="tag free">免費</span>' : '<span class="tag member">會員</span>';
+}
+
+function renderLevels(){
+  $("#levels").innerHTML = LEVELS.map(L => {
+    const items = LESSONS.filter(l => l.lv === L.n).map(l => `
+      <button class="lesson" type="button" data-id="${l.id}" ${l.soon ? "disabled" : ""}>
+        ${COVERS.has(l.id) ? `<div class="cover"><img src="img/c-${l.id}.jpg" alt="" loading="lazy" width="720" height="480"></div>` : `<div class="cover none"><img src="img/aji-idea.jpg" alt="" loading="lazy" style="width:auto;height:78%;object-fit:contain;mix-blend-mode:multiply"></div>`}
+        <div class="meta">${tagFor(l)}${l.soon ? "" : '<span class="tag video">影片版製作中</span>'}</div>
+        <h3>${l.title}</h3><p>${l.sum}</p><div class="mins">約 ${l.mins} 分鐘</div>
+      </button>`).join("");
+    return `<section class="level lv${L.n}" id="${L.id}" aria-labelledby="${L.id}-h">
+      <div class="wrap">
+        <div class="level-head"><div class="badge" aria-hidden="true">${L.n}</div>
+          <div><div class="mono" style="color:var(--lv)">第 ${L.n} 階</div><h2 id="${L.id}-h">${L.name}</h2><p>${L.desc}</p></div>
+          <div class="outcome">學完你會：<b>${L.outcome}</b></div></div>
+        <div class="lessons">${items}</div>
+      </div></section>`;
+  }).join("");
+}
+
+function openLesson(id){
+  const l = LESSONS.find(x => x.id === id && !x.soon);
+  if (!l) return false;
+  const L = LEVELS[l.lv - 1];
+  const reader = $("#reader");
+  reader.className = "reader lv" + l.lv;
+  $("#r-level").textContent = `第 ${L.n} 階 · ${L.name}`;
+  const body = l.tier === "member"
+    ? ajiTips(l.teaser) + `<div class="paywall"><div class="inner"><h3>這一課是會員內容</h3><p>成為會員就能讀完整篇。</p><button class="btn btn-primary" type="button" data-pay="join">成為會員 · NT$149／月</button></div></div>`
+    : ajiTips(l.body);
+  $("#r-body").innerHTML = (COVERS.has(l.id) ? `<img class="r-cover" src="img/c-${l.id}.jpg" alt="" width="720" height="480">` : "") + `<h1 id="r-title">${l.title}</h1><p class="sub">${l.sum} · 約 ${l.mins} 分鐘</p>
+    <div class="video-slot"><span class="play" aria-hidden="true"></span>影片版製作中，完成後會放在這裡</div>${body}`;
+  $("#shade").hidden = false; reader.hidden = false; reader.scrollTop = 0;
+  document.body.style.overflow = "hidden";
+  $("#r-close").focus();
+  return true;
+}
+function closeLesson(){
+  $("#shade").hidden = true; $("#reader").hidden = true; document.body.style.overflow = "";
+  if (LESSONS.some(l => "#" + l.id === location.hash)) history.replaceState(null, "", location.pathname + location.search);
+}
+function route(){
+  const id = location.hash.slice(1);
+  if (!openLesson(id)) { if (!$("#reader").hidden) closeLesson(); }
+}
+
+let toastTimer;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3200); }
+
+document.addEventListener("click", e => {
+  const lesson = e.target.closest(".lesson");
+  if (lesson && !lesson.disabled) { location.hash = lesson.dataset.id; return; }
+  const pay = e.target.closest("[data-pay]");
+  if (pay) {
+    const kind = pay.dataset.pay;
+    if (SITE[kind]) window.open(SITE[kind], "_blank", "noopener");
+    else toast(SOON_MSG[kind] || SOON_MSG.join);
+    return;
+  }
+  if (e.target.id === "shade") closeLesson();
+});
+$("#r-close").addEventListener("click", closeLesson);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#reader").hidden) closeLesson(); });
+
+const FIND = {
+  1: "從<b>第 1 階 · 新手入門</b>開始，第一課是「AI 到底是什麼？」",
+  2: "直接從<b>第 2 階 · 中階應用</b>開始，先看「主流 AI 模型有什麼差別？」",
+  3: "去<b>第 3 階 · 進階玩家</b>，從「什麼是 AI 代理？」開始",
+  4: "去<b>第 4 階 · 商家實戰</b>，先看「小店最值得用 AI 的 6 個地方」"
+};
+document.querySelectorAll("#finder-opts .chip").forEach(c => c.addEventListener("click", () => {
+  document.querySelectorAll("#finder-opts .chip").forEach(x => x.setAttribute("aria-pressed", x === c ? "true" : "false"));
+  const n = c.dataset.to;
+  $("#finder-out").innerHTML = FIND[n] + ` · <a href="#level-${n}">跳過去</a>`;
+}));
+
+renderLevels();
+window.addEventListener("hashchange", route);
+route();
+</script>
